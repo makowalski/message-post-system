@@ -1,23 +1,25 @@
 package com.showyourtrip.message.utils
 
+import com.typesafe.config.ConfigFactory
 import reactivemongo.api.collections.bson.BSONCollection
-import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver}
+import reactivemongo.api.{MongoConnection, MongoDriver}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object MongoSupport {
-  val mongoUri = "mongodb://localhost:27017/showyourtrip"
-
+  val mongoUri = ConfigFactory.load().getString("mongodb.uri")
   val driver = MongoDriver()
-  val parsedUri = MongoConnection.parseURI(mongoUri)
-  val connection = parsedUri.map(driver.connection(_))
-  val futureConnection = Future.fromTry(connection)
+  val parsedUri = Future.fromTry(MongoConnection.parseURI(mongoUri))
+  val connection = parsedUri.map(driver.connection)
+  val database = for {
+    uri <- parsedUri
+    conn <- connection
+    db <- conn.database(uri.db.getOrElse(""))
+  } yield db
 }
 
 trait MongoSupport {
 
-  def db: Future[DefaultDB] = MongoSupport.futureConnection.flatMap(_.database("showyourtrip"))
-
-  def collection(name: String) = db.map(_.collection[BSONCollection](name))
+  def collection(name: String) = MongoSupport.database.map(_.collection[BSONCollection](name))
 }

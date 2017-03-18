@@ -15,7 +15,7 @@ object Message extends MongoSupport {
     collection("messages")
       .flatMap(_.insert(message))
       .onComplete(_ match {
-        case Success(w) => // TODO handle success log?
+        case Success(r) => // TODO handle success log?
         case Failure(e) => // TODO handle error
       })
 }

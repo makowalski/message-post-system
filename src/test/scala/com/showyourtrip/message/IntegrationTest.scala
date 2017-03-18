@@ -10,6 +10,7 @@ import com.showyourtrip.message.services._
 import akka.http.scaladsl.model.MediaTypes.`application/json`
 import akka.stream.ActorMaterializer
 import com.showyourtrip.message.http.HttpService
+import com.typesafe.config.ConfigFactory
 
 class IntegrationTest extends TestKit(ActorSystem("test-system"))
   with FunSuiteLike
@@ -19,19 +20,22 @@ class IntegrationTest extends TestKit(ActorSystem("test-system"))
   implicit val actorMaterializer = ActorMaterializer()
   implicit val executor = system.dispatcher
 
+  val host = ConfigFactory.load().getString("message.push.service.hostname")
+  val port = ConfigFactory.load().getInt("message.push.service.port")
+
   override def beforeAll {
     val eventHandlerActor = system.actorOf(Props(classOf[EventHandlerActor], new MessageEventBus), "eventHandlerActor")
     val storeActor = system.actorOf(Props(classOf[StoreActor], (message: Message) => {}), "storeActor")
     val messageActor = system.actorOf(Props(classOf[MessageActor], eventHandlerActor, storeActor), "messageActor")
 
-    Http().bindAndHandle(new HttpService(messageActor).route, "localhost", 9092)
+    Http().bindAndHandle(new HttpService(messageActor).route, host, port)
   }
 
   override def afterAll {
     shutdown()
   }
 
-  test("subscribe and send message") {
+  test("subscribe and post message") {
     val selectionSubscription = system
       .actorSelection("akka.tcp://test-system@127.0.0.1:3652/user/eventHandlerActor")
 
@@ -41,7 +45,7 @@ class IntegrationTest extends TestKit(ActorSystem("test-system"))
     Http().singleRequest(
       HttpRequest(
         method = HttpMethods.POST,
-        uri = "http://localhost:9092/message",
+        uri = s"http://$host:$port/message",
         headers = List[HttpHeader](),
         entity = HttpEntity(
           `application/json`,

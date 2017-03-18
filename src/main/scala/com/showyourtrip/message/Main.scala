@@ -6,6 +6,7 @@ import akka.stream.ActorMaterializer
 import com.showyourtrip.message.http.HttpService
 import com.showyourtrip.message.models.Message
 import com.showyourtrip.message.services.{EventHandlerActor, MessageActor, MessageEventBus, StoreActor}
+import com.typesafe.config.ConfigFactory
 
 object Main {
 
@@ -18,7 +19,10 @@ object Main {
     val storeActor = actorSystem.actorOf(Props(classOf[StoreActor], Message.insertFunction), "storeActor")
     val messageActor = actorSystem.actorOf(Props(classOf[MessageActor], eventHandlerActor, storeActor), "messageActor")
 
-    Http().bindAndHandle(new HttpService(messageActor).route, "localhost", 9091)
+    val host = ConfigFactory.load().getString("message.push.service.hostname")
+    val port = ConfigFactory.load().getInt("message.push.service.port")
+
+    Http().bindAndHandle(new HttpService(messageActor).route, host, port)
 
     println("server started at 8080")
   }
