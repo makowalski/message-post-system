@@ -21,7 +21,7 @@ class IntegrationTest extends TestKit(ActorSystem("test-system"))
 
   override def beforeAll {
     val eventHandlerActor = system.actorOf(Props(classOf[EventHandlerActor], new MessageEventBus), "eventHandlerActor")
-    val storeActor = system.actorOf(Props[StoreActor], "storeActor")
+    val storeActor = system.actorOf(Props(classOf[StoreActor], (message: Message) => {}), "storeActor")
     val messageActor = system.actorOf(Props(classOf[MessageActor], eventHandlerActor, storeActor), "messageActor")
 
     Http().bindAndHandle(new HttpService(messageActor).route, "localhost", 9092)

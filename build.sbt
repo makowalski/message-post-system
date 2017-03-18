@@ -15,6 +15,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-generic" % "0.6.1",
   "io.circe" %% "circe-parser" % "0.6.1",
   "com.typesafe.slick" %% "slick" % "3.2.0",
+  "org.reactivemongo" %% "reactivemongo" % "0.12.1",
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
   "com.typesafe.akka" %% "akka-testkit" % "2.4.17" % "test",
   "org.mockito" % "mockito-core" % "2.2.9" % "test"

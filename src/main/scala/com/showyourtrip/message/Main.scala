@@ -4,6 +4,7 @@ import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import com.showyourtrip.message.http.HttpService
+import com.showyourtrip.message.models.Message
 import com.showyourtrip.message.services.{EventHandlerActor, MessageActor, MessageEventBus, StoreActor}
 
 object Main {
@@ -14,7 +15,7 @@ object Main {
     implicit val executor = actorSystem.dispatcher
 
     val eventHandlerActor = actorSystem.actorOf(Props(classOf[EventHandlerActor], new MessageEventBus), "eventHandlerActor")
-    val storeActor = actorSystem.actorOf(Props[StoreActor], "storeActor")
+    val storeActor = actorSystem.actorOf(Props(classOf[StoreActor], Message.insertFunction), "storeActor")
     val messageActor = actorSystem.actorOf(Props(classOf[MessageActor], eventHandlerActor, storeActor), "messageActor")
 
     Http().bindAndHandle(new HttpService(messageActor).route, "localhost", 9091)
