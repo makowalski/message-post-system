@@ -17,29 +17,31 @@ class EventHandlerActorTest extends TestKit(ActorSystem("test-system"))
     shutdown()
   }
 
-  test("should subscribe ActorRef when Subscription message arrive") {
+  test("should subscribe ActorRef when Subscribe message arrive") {
 
     val eventBusMock = mock[MessageEventBus]
     val eventHandlerActor = system.actorOf(Props(classOf[EventHandlerActor], eventBusMock))
-    val subscription = Subscription("system", testActor)
+    val subscription = Subscribe("system", testActor)
     Mockito.when(eventBusMock.subscribe(testActor, "system")).thenReturn(true)
 
     eventHandlerActor ! subscription
 
+    expectMsg(Subscribed("system"))
     awaitAssert(Mockito.verify(eventBusMock).subscribe(testActor, "system"))
   }
 
-  test("should restart when Subscription message processing causes exception") {
+  test("should restart when Subscribe message processing causes exception") {
 
     val eventBusMock = mock[MessageEventBus]
     val eventHandlerActor = system.actorOf(Props(classOf[EventHandlerActor], eventBusMock))
-    val subscription = Subscription("system", testActor)
+    val subscription = Subscribe("system", testActor)
 
     Mockito.when(eventBusMock.subscribe(testActor, "system")).thenThrow(new RuntimeException).thenReturn(true)
     eventHandlerActor ! subscription
     eventHandlerActor ! subscription
     eventHandlerActor ! subscription
 
+    expectMsg(Subscribed("system"))
     awaitAssert(Mockito.verify(eventBusMock, Mockito.times(3)).subscribe(testActor, "system"))
   }
 

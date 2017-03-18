@@ -6,7 +6,9 @@ import com.showyourtrip.message.models.Message
 
 case class MessageEvent(topic: String, message: Message)
 
-case class Subscription(topic: String, subscriber: ActorRef)
+case class Subscribe(topic: String, subscriber: ActorRef)
+
+case class Subscribed(topic: String)
 
 class EventHandlerActor(val messageEventBus: MessageEventBus) extends Actor {
 
@@ -14,8 +16,9 @@ class EventHandlerActor(val messageEventBus: MessageEventBus) extends Actor {
     case m: Message => {
       messageEventBus.publish(MessageEvent("system", m))
     }
-    case s: Subscription => {
+    case s: Subscribe => {
       messageEventBus.subscribe(s.subscriber, s.topic)
+      s.subscriber ! Subscribed(s.topic)
     }
   }
 

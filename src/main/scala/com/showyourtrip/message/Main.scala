@@ -17,7 +17,8 @@ object Main {
     val storeActor = actorSystem.actorOf(Props[StoreActor], "storeActor")
     val messageActor = actorSystem.actorOf(Props(classOf[MessageActor], eventHandlerActor, storeActor), "messageActor")
 
-    Http().bindAndHandle(new HttpService(messageActor).route, "localhost", 8080)
+    Http().bindAndHandle(new HttpService(messageActor).route, "localhost", 9091)
+
     println("server started at 8080")
   }
 
