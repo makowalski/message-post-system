@@ -24,9 +24,9 @@ class IntegrationTest extends TestKit(ActorSystem("test-system"))
   val port = ConfigFactory.load().getInt("message.push.service.port")
 
   override def beforeAll {
-    val eventHandlerActor = system.actorOf(Props(classOf[EventHandlerActor], new MessageEventBus), "eventHandlerActor")
-    val storeActor = system.actorOf(Props(classOf[StoreActor], (message: Message) => {}), "storeActor")
-    val messageActor = system.actorOf(Props(classOf[MessageActor], eventHandlerActor, storeActor), "messageActor")
+    val eventHandlerActor = system.actorOf(Props(classOf[EventHandlerActor], new MessageEventBus), "event-handler")
+    val storeActor = system.actorOf(Props(classOf[StoreActor], (message: Message) => {}), "store")
+    val messageActor = system.actorOf(Props(classOf[MessageActor], eventHandlerActor, storeActor), "message")
 
     Http().bindAndHandle(new HttpService(messageActor).route, host, port)
   }
@@ -37,7 +37,7 @@ class IntegrationTest extends TestKit(ActorSystem("test-system"))
 
   test("subscribe and post message") {
     val selectionSubscription = system
-      .actorSelection("akka.tcp://test-system@127.0.0.1:3652/user/eventHandlerActor")
+      .actorSelection("akka.tcp://test-system@127.0.0.1:3652/user/event-handler")
 
     selectionSubscription ! Subscribe("system", testActor)
     expectMsg(Subscribed("system"))

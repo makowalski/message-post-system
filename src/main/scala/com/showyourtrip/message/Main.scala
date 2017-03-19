@@ -7,24 +7,23 @@ import com.showyourtrip.message.http.HttpService
 import com.showyourtrip.message.models.Message
 import com.showyourtrip.message.services.{EventHandlerActor, MessageActor, MessageEventBus, StoreActor}
 import com.typesafe.config.ConfigFactory
+import kamon.Kamon
 
-object Main {
+object Main extends App {
+  Kamon.start()
 
-  def main(args: Array[String]) {
-    implicit val actorSystem = ActorSystem("message-writing-system")
-    implicit val actorMaterializer = ActorMaterializer()
-    implicit val executor = actorSystem.dispatcher
+  implicit val actorSystem = ActorSystem("message-post-system")
+  implicit val actorMaterializer = ActorMaterializer()
+  implicit val executor = actorSystem.dispatcher
 
-    val eventHandlerActor = actorSystem.actorOf(Props(classOf[EventHandlerActor], new MessageEventBus), "eventHandlerActor")
-    val storeActor = actorSystem.actorOf(Props(classOf[StoreActor], Message.insertFunction), "storeActor")
-    val messageActor = actorSystem.actorOf(Props(classOf[MessageActor], eventHandlerActor, storeActor), "messageActor")
+  val eventHandlerActor = actorSystem.actorOf(Props(classOf[EventHandlerActor], new MessageEventBus), "event-handler")
+  val storeActor = actorSystem.actorOf(Props(classOf[StoreActor], Message.insertFunction), "store")
+  val messageActor = actorSystem.actorOf(Props(classOf[MessageActor], eventHandlerActor, storeActor), "message")
 
-    val host = ConfigFactory.load().getString("message.push.service.hostname")
-    val port = ConfigFactory.load().getInt("message.push.service.port")
+  val host = ConfigFactory.load().getString("message.push.service.hostname")
+  val port = ConfigFactory.load().getInt("message.push.service.port")
 
-    Http().bindAndHandle(new HttpService(messageActor).route, host, port)
+  Http().bindAndHandle(new HttpService(messageActor).route, host, port)
 
-    println("server started at 8080")
-  }
-
+  println(s"server started at $port")
 }
