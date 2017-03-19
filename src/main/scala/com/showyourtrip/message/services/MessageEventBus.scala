@@ -1,6 +1,6 @@
 package com.showyourtrip.message.services
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{Actor, ActorRef, Terminated}
 import akka.event.{ActorEventBus, LookupClassification}
 import com.showyourtrip.message.models.Message
 
@@ -16,9 +16,15 @@ class EventHandlerActor(val messageEventBus: MessageEventBus) extends Actor {
     case m: Message => {
       messageEventBus.publish(MessageEvent("system", m))
     }
-    case s: Subscribe => {
-      messageEventBus.subscribe(s.subscriber, s.topic)
-      s.subscriber ! Subscribed(s.topic)
+    case Subscribe(topic, subscriber) => {
+      messageEventBus.subscribe(subscriber, topic)
+
+      context.watch(subscriber)
+
+      subscriber ! Subscribed(topic)
+    }
+    case Terminated(actor) => {
+      messageEventBus.unsubscribe(actor)
     }
   }
 
@@ -31,7 +37,7 @@ class MessageEventBus extends ActorEventBus with LookupClassification {
   type Event = MessageEvent
   type Classifier = String
 
-  protected def mapSize(): Int = {
+  def mapSize(): Int = {
     16
   }
 

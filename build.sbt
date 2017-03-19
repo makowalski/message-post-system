@@ -18,7 +18,8 @@ libraryDependencies ++= Seq(
   "org.reactivemongo" %% "reactivemongo" % "0.12.1",
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
   "com.typesafe.akka" %% "akka-testkit" % "2.4.17" % "test",
-  "org.mockito" % "mockito-core" % "2.2.9" % "test"
+  "org.mockito" % "mockito-core" % "2.2.9" % "test",
+  "org.scalamock" %% "scalamock-scalatest-support" % "3.5.0" % "test"
 )
 
 parallelExecution in Test := false
