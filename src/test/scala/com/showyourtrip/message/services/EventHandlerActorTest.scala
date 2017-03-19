@@ -1,6 +1,6 @@
 package com.showyourtrip.message.services
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorSystem, PoisonPill, Props}
 import akka.testkit.TestKit
 import com.showyourtrip.message.models.Message
 import org.mockito.ArgumentMatchers.any
@@ -68,5 +68,23 @@ class EventHandlerActorTest extends TestKit(ActorSystem("test-system"))
     eventHandlerActor ! message
 
     awaitAssert(Mockito.verify(eventBusMock, Mockito.times(3)).publish(any[MessageEvent]))
+  }
+
+  test("should unsubscribe when subscriber is killed") {
+
+    val eventBusMock = mock[MessageEventBus]
+    val eventHandlerActor = system.actorOf(Props(classOf[EventHandlerActor], eventBusMock))
+    val subscription = Subscribe("system", testActor)
+    Mockito.when(eventBusMock.subscribe(testActor, "system")).thenReturn(true)
+
+    eventHandlerActor ! subscription
+
+    expectMsg(Subscribed("system"))
+    awaitAssert(Mockito.verify(eventBusMock).subscribe(testActor, "system"))
+
+    Mockito.doNothing().when(eventBusMock).unsubscribe(testActor)
+    testActor ! PoisonPill
+
+    awaitAssert(Mockito.verify(eventBusMock).unsubscribe(testActor))
   }
 }
