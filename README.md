@@ -15,16 +15,16 @@ Compiles code and executes tests:
 ## Configuration
 //TBA
 
-## Monitoring
-Kamon monitoring module is used (https://github.com/kamon-io/kamon-akka). It sends statistic about main actors and database connection pool to StatsD server.
-Default settings for StatsD: `127.0.0.1:8125`
-
 ## Run
 Run locally from terminal:
 
 `sbt run`
 
 Statement run application locally on default port `9091`.
+
+## Monitoring
+Kamon monitoring module is used (https://github.com/kamon-io/kamon-akka). It sends statistic about main actors and database connection pool to StatsD server.
+Default settings for StatsD: `127.0.0.1:8125`
 
 ## Example of use
 
