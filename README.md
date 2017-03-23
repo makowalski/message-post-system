@@ -53,3 +53,4 @@ with request Body:
 ```
 All fields are mandatory.
 
+After all message will be propagated to the subscriber and persist in MongoDB.
