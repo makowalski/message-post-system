@@ -1,6 +1,12 @@
 # message-post-system
 Service provides REST endpoint for pushing messages to the system. MongoDB is used to persist data. Every message is send to proper topic in Event Bus. It is a "Command" part of CQRS pattern. Thanks to remote Akka actors you can subscribe any ActorRef to get notifications.
 
+What do you need to use message-post-system:
+- Java 8
+- SBT
+- MongoDB
+- Akka remote client
+
 ## Compile
 Compiles code and executes tests:
 
@@ -53,4 +59,4 @@ with request Body:
 ```
 All fields are mandatory.
 
-After all message will be propagated to the subscriber and persist in MongoDB.
+After all steps message will be propagated to the subscriber and persist in MongoDB.
