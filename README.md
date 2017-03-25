@@ -13,13 +13,13 @@ Compiles code and executes tests:
 `sbt test`
 
 ## Run
-Run locally:
+#### Run locally:
 
 Statement run application locally on default port `9091`. Thanks to `sbt-aspectj-runner` plugin there is no need to add aspectjweaver lib manually.
 
 `sbt run`
 
-Run in production:
+#### Run in production:
 
 Create package with all needed dependencies.
 
