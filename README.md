@@ -12,15 +12,27 @@ Compiles code and executes tests:
 
 `sbt test`
 
-## Configuration
-//TBA
-
 ## Run
-Run locally from terminal:
+Run locally:
+
+Statement run application locally on default port `9091`. Thanks to `sbt-aspectj-runner` plugin there is no need to add aspectjweaver lib manually.
 
 `sbt run`
 
-Statement run application locally on default port `9091`.
+Run in production:
+
+Create package with all needed dependencies.
+
+`sbt assembly`
+
+Run package in production environment with specified javaagent and aspectjweaver library path.
+
+`java -javaagent:./libs/aspectjweaver-1.8.10.jar -cp message-post-system-0.0.1.jar com.showyourtrip.message.Main`
+
+## Configuration
+Customize your logging policy by adding below property to the run statement:
+
+`-Dlogback.configurationFile=./conf/message-post-system-logger.xml`
 
 ## Monitoring
 Kamon monitoring module is used (https://github.com/kamon-io/kamon-akka). It sends statistic about main actors and database connection pool to StatsD server.
